@@ -93,8 +93,8 @@ if __name__ == '__main__':
     worksheet = sheet.worksheet(SHEET)
 
     # ADD HEADERS TO SHEET
-    worksheet.append_row(
-     values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher', 'platforms', 'genres', 'email', 'steam_id'])
+    #worksheet.append_row(
+    # values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher', 'platforms', 'genres', 'email', 'steam_id'])
 
     already_parsed = worksheet.col_values(11)
     already_parsed.remove('steam_id')
