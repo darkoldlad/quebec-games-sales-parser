@@ -1,6 +1,6 @@
-Create .env file in the root directory 
+Create .env file in the project directory 
 by terminal command:
 
 `touch .env`
 
-Copy all  vars from dist.env to .env file and specify correct values 
+Copy all from dist.env and paste into .env file, then specify valid values 
