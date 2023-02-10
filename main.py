@@ -85,20 +85,17 @@ def get_games_list():
 if __name__ == '__main__':
     scope = ['https://spreadsheets.google.com/feeds',
              'https://www.googleapis.com/auth/drive']
-    gsheets_creds_path = GSHEET_CREDENTIALS_PATH
-    credentials = service_account.Credentials.from_service_account_file(gsheets_creds_path)
+    credentials = service_account.Credentials.from_service_account_file(GSHEET_CREDENTIALS_PATH)
     scoped_credentials = credentials.with_scopes(scope)
     gc = gspread.authorize(scoped_credentials)
     sheet = gc.open_by_url(URL_FOR_GSHEET)
     worksheet = sheet.worksheet(SHEET)
-
-    # ADD HEADERS TO SHEET
-    #worksheet.append_row(
-    # values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher', 'platforms', 'genres', 'email', 'steam_id'])
-
     already_parsed = worksheet.col_values(11)
+    if len(already_parsed) == 0:
+    # ADD HEADERS TO SHEET
+        worksheet.append_row(
+         values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher', 'platforms', 'genres', 'email', 'steam_id'])
     already_parsed.remove('steam_id')
-
     games = get_games_list()
     print(len(games))
     for game in games:
