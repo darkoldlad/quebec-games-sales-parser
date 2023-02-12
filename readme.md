@@ -3,4 +3,4 @@ by terminal command:
 
 `touch .env`
 
-Copy all from dist.env and paste into .env file, then specify valid values 
+Copy all from .env.dist and paste into .env file, then specify valid values 
