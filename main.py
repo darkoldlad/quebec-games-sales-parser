@@ -95,7 +95,8 @@ if __name__ == '__main__':
     # ADD HEADERS TO SHEET
         worksheet.append_row(
          values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher', 'platforms', 'genres', 'email', 'steam_id'])
-    already_parsed.remove('steam_id')
+    if 'steam_id' in already_parsed:
+        already_parsed.remove('steam_id')
     games = get_games_list()
     print(len(games))
     for game in games:
