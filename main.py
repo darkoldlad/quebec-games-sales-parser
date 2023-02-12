@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import json
 import gspread
 from google.oauth2 import service_account
 from selenium import webdriver
@@ -29,7 +28,7 @@ def get_game_details(steam_id):
             game_info = details.get('data', {})
             game_name = game_info.get('name')
             game_type = game_info.get('type')
-            release_date = game_info.get('release_date',{}).get('date')
+            release_date = game_info.get('release_date', {}).get('date')
             game_website = game_info.get('website')
             developer = '\n'.join(map(str, game_info.get('developers')))
             publisher = '\n'.join(map(str, game_info.get('publishers')))
@@ -46,13 +45,14 @@ def get_game_details(steam_id):
             email = game_info.get('support_info', {}).get('email')
             return [link, game_name, game_type, release_date, game_website, developer, publisher, platforms, genres, email, steam_id]
 
+
 def get_game_ids(page_source):
     soup = BeautifulSoup(page_source, 'lxml')
     rows = soup.find('div', class_='facetedbrowse_FacetedBrowseItems_NO-IP').find_all('div', class_='salepreviewwidgets_SaleItemBrowserRow_y9MSd')
     game_ids = set()
     for row in rows:
         link = row.find('div', class_='ImpressionTrackedElement').find('div', class_='salepreviewwidgets_StoreSaleWidgetOuterContainer_38DqR Panel Focusable').find('div', class_='salepreviewwidgets_StoreSaleWidgetContainer_UlvFk salepreviewwidgets_SaleItemDefaultCapsuleDisplay_34o91 Focusable').find('div', class_='salepreviewwidgets_StoreSaleWidgetHalfLeft_2Va3O').find('a')
-        game_ids.add(link.get('href').replace('https://store.steampowered.com/app/','').split('/')[0])
+        game_ids.add(link.get('href').replace('https://store.steampowered.com/app/', '').split('/')[0])
     return game_ids
 
 
@@ -82,26 +82,31 @@ def get_games_list():
     return ids
 
 
-if __name__ == '__main__':
+def connect_gsheet(cred_path=GSHEET_CREDENTIALS_PATH, gsheet_url=URL_FOR_GSHEET, worksheet_name=SHEET):
     scope = ['https://spreadsheets.google.com/feeds',
              'https://www.googleapis.com/auth/drive']
-    credentials = service_account.Credentials.from_service_account_file(GSHEET_CREDENTIALS_PATH)
+    credentials = service_account.Credentials.from_service_account_file(cred_path)
     scoped_credentials = credentials.with_scopes(scope)
     gc = gspread.authorize(scoped_credentials)
-    sheet = gc.open_by_url(URL_FOR_GSHEET)
-    worksheet = sheet.worksheet(SHEET)
+    sheet = gc.open_by_url(gsheet_url)
+    worksheet = sheet.worksheet(worksheet_name)
+    return worksheet
+
+
+if __name__ == '__main__':
+    worksheet = connect_gsheet()
+
+    # Check info in the worksheet and apply headers if it's the first run
     already_parsed = worksheet.col_values(11)
     if len(already_parsed) == 0:
-    # ADD HEADERS TO SHEET
         worksheet.append_row(
-         values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher', 'platforms', 'genres', 'email', 'steam_id'])
+            values=['link', 'game_name', 'game_type', 'release_date', 'game_website', 'developer', 'publisher',
+                    'platforms', 'genres', 'email', 'steam_id'])
     if 'steam_id' in already_parsed:
         already_parsed.remove('steam_id')
+
     games = get_games_list()
-    print(len(games))
     for game in games:
         if game not in already_parsed:
             worksheet.append_row(values=get_game_details(game))
-            time.sleep(2.0)
-
-
+            time.sleep(1.1)
